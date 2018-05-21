@@ -30,6 +30,9 @@
 // Define to enable the bonjour/zeroconf publishing
 #cmakedefine ENABLE_ZEROCONF
 
+// Define to enable philips hue entertainment leddevice
+#cmakedefine ENABLE_HUEENTERTAINMENT
+
 // Define to enable profiler for development purpose
 #cmakedefine ENABLE_PROFILER
 #cmakedefine ENABLE_QT5
