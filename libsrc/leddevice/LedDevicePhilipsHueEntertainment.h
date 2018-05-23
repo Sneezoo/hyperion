@@ -10,21 +10,15 @@
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/ssl.h"
 
-class HueEntertainmentWorker: public QObject {
+class HueEntertainmentWorker: public QThread {
     Q_OBJECT;
-    QThread workerThread;
 
 public:
     HueEntertainmentWorker(const std::string& output, const std::string& username, const std::string& clientkey, std::vector<PhilipsHueLight>* lights);
-    virtual ~HueEntertainmentWorker();
-    std::vector<ColorRgb> ledValues;
 
-public slots:
-    void sendValues(const std::vector<ColorRgb> &ledValues);
-    void establishConnection();
+    void run();
 
 private:
-    bool connected = false;
     /// Output
     QString output;
     /// Username
@@ -33,15 +27,10 @@ private:
     QString clientkey;
     /// Array to save the lamps.
     std::vector<PhilipsHueLight>* lights;
-
-    mbedtls_net_context server_fd;
-    mbedtls_ssl_context ssl;
-
 };
 
 class LedDevicePhilipsHueEntertainment: public LedDevicePhilipsHue {
     Q_OBJECT;
-    QThread workerThread;
 
 public:
     LedDevicePhilipsHueEntertainment(const std::string& output, const std::string& username, const std::string& clientkey, bool switchOffOnBlack =
@@ -54,7 +43,6 @@ public:
 
 signals:
     void establishConnection();
-    void sendValues(const std::vector<ColorRgb> &ledValues);
 
 private:
     /// Clientkey

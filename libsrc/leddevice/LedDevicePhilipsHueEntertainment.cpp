@@ -29,17 +29,13 @@ LedDevicePhilipsHueEntertainment::LedDevicePhilipsHueEntertainment(const std::st
     switchOn(0);
 
     worker = new HueEntertainmentWorker(output, username, clientkey, &lights);
-    worker->moveToThread(&workerThread);
-    connect(&workerThread, SIGNAL(finished()), worker, SLOT(deleteLater()));
-    connect(this, SIGNAL(establishConnection()), worker, SLOT(establishConnection()));
-    workerThread.start();
-
-    emit establishConnection();
+    worker->start();
 }
 
 LedDevicePhilipsHueEntertainment::~LedDevicePhilipsHueEntertainment() {
-    workerThread.quit();
-    workerThread.wait();
+    worker->terminate();
+    worker->wait();
+    delete worker;
 }
 
 int LedDevicePhilipsHueEntertainment::write(const std::vector <ColorRgb> &ledValues) {
@@ -83,10 +79,12 @@ HueEntertainmentWorker::HueEntertainmentWorker(const std::string &output,
                                                                                       lights(lights) {
 }
 
-void HueEntertainmentWorker::establishConnection() {
+void HueEntertainmentWorker::run() {
     int ret;
     const char *pers = "dtls_client";
 
+    mbedtls_net_context server_fd;
+    mbedtls_ssl_context ssl;
     mbedtls_entropy_context entropy;
     mbedtls_ctr_drbg_context ctr_drbg;
     mbedtls_ssl_config conf;
@@ -193,8 +191,6 @@ void HueEntertainmentWorker::establishConnection() {
         qFatal("mbedtls_ssl_handshake FAILED %d", ret);
     }
 
-    connected = true;
-
     char header[] = {
             'H', 'u', 'e', 'S', 't', 'r', 'e', 'a', 'm', //protocol
             0x01, 0x00, //version 1.0
@@ -203,6 +199,8 @@ void HueEntertainmentWorker::establishConnection() {
             0x01, //color mode RGB
             0x00, //linear filter
     };
+
+
 
     while (true)
     {
@@ -233,16 +231,13 @@ void HueEntertainmentWorker::establishConnection() {
         while (ret == MBEDTLS_ERR_SSL_WANT_READ ||
                ret == MBEDTLS_ERR_SSL_WANT_WRITE);
 
-        if (ret < 0)
-        {
-            break;
-        }
+        QThread::msleep(30);
     }
-}
 
-void HueEntertainmentWorker::sendValues(const std::vector <ColorRgb> &ledValues) {
-    this->ledValues = ledValues;
-}
-
-HueEntertainmentWorker::~HueEntertainmentWorker() {
+    /*    mbedtls_net_free(&server_fd);
+    mbedtls_x509_crt_free(&cacert);
+    mbedtls_ssl_free(&ssl);
+    mbedtls_ssl_config_free(&conf);
+    mbedtls_ctr_drbg_free(&ctr_drbg);
+    mbedtls_entropy_free(&entropy);*/
 }
