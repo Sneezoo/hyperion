@@ -18,6 +18,9 @@ public:
 
     void run();
 
+    std::vector<ColorRgb> ledValues;
+
+
 private:
     /// Output
     QString output;
@@ -33,8 +36,7 @@ class LedDevicePhilipsHueEntertainment: public LedDevicePhilipsHue {
     Q_OBJECT;
 
 public:
-    LedDevicePhilipsHueEntertainment(const std::string& output, const std::string& username, const std::string& clientkey, bool switchOffOnBlack =
-    false, int transitiontime = 1, unsigned int groupId = 0, std::vector<unsigned int> lightIds = std::vector<unsigned int>());
+    LedDevicePhilipsHueEntertainment(const std::string& output, const std::string& username, const std::string& clientkey, unsigned int groupId = 0);
 
     ///
     /// Destructor of this device

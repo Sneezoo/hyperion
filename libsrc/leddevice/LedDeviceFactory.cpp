@@ -279,15 +279,9 @@ LedDevice * LedDeviceFactory::construct(const Json::Value & deviceConfig)
 		const std::string output = deviceConfig["output"].asString();
 		const std::string username = deviceConfig["username"].asString();
 		const std::string clientkey = deviceConfig["clientkey"].asString();
-		const bool switchOffOnBlack = deviceConfig.get("switchOffOnBlack", true).asBool();
-		const int transitiontime = deviceConfig.get("transitiontime", 1).asInt();
 		const unsigned int groupId = deviceConfig["groupId"].asInt();
-		std::vector<unsigned int> lightIds;
-		for (Json::Value::ArrayIndex i = 0; i < deviceConfig["lightIds"].size(); i++) {
-			lightIds.push_back(deviceConfig["lightIds"][i].asInt());
-		}
 
-		device = new LedDevicePhilipsHueEntertainment(output, username, clientkey, switchOffOnBlack, transitiontime, groupId, lightIds);
+		device = new LedDevicePhilipsHueEntertainment(output, username, clientkey, groupId);
 	}
 #endif
 	else if (type == "atmoorb")

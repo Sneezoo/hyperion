@@ -1,5 +1,8 @@
 #include "LedDevicePhilipsHueEntertainment.h"
 
+// jsoncpp includes
+#include <json/json.h>
+
 // Qt includes
 #include <QDebug>
 #include <QDebug>
@@ -18,12 +21,30 @@
 LedDevicePhilipsHueEntertainment::LedDevicePhilipsHueEntertainment(const std::string &output,
                                                                    const std::string &username,
                                                                    const std::string &clientkey,
-                                                                   bool switchOffOnBlack, int transitiontime,
-                                                                   unsigned int groupId,
-                                                                   std::vector<unsigned int> lightIds)
-        : LedDevicePhilipsHue(output, username, switchOffOnBlack, transitiontime, lightIds),
+                                                                   unsigned int groupId)
+        : LedDevicePhilipsHue(output, username, false, 1),
           clientkey(clientkey.c_str()),
           groupId(groupId) {
+
+    QByteArray response = get(getGroupRoute(groupId));
+    //qDebug() << response;
+    Json::Reader reader;
+
+    Json::Value json;
+    if (!reader.parse(QString(response).toStdString(), json)) {
+        throw std::runtime_error(("Error getting lights from group " + getUrl(getGroupRoute(groupId))).toStdString());
+    }
+
+    if(json["type"] != "Entertainment") {
+        throw std::runtime_error("Given group is no entertainment group");
+    }
+
+    Json::Value lightsArray = json["lights"];
+
+    // Loop over all children.
+    for (Json::ValueIterator it = lightsArray.begin(); it != lightsArray.end(); it++) {
+        lightIds.push_back(atoi(lightsArray[it.index()].asCString()));
+    }
 
     saveStates(lightIds.size());
     switchOn(0);
@@ -39,6 +60,7 @@ LedDevicePhilipsHueEntertainment::~LedDevicePhilipsHueEntertainment() {
 }
 
 int LedDevicePhilipsHueEntertainment::write(const std::vector <ColorRgb> &ledValues) {
+    worker->ledValues = ledValues;
     unsigned int idx = 0;
     for (const ColorRgb& color : ledValues) {
         // Get lamp.
@@ -200,8 +222,6 @@ void HueEntertainmentWorker::run() {
             0x00, //linear filter
     };
 
-
-
     while (true)
     {
         QByteArray Msg;
@@ -231,13 +251,16 @@ void HueEntertainmentWorker::run() {
         while (ret == MBEDTLS_ERR_SSL_WANT_READ ||
                ret == MBEDTLS_ERR_SSL_WANT_WRITE);
 
+        if(ret < 0) {
+            break;
+        }
         QThread::msleep(30);
     }
 
-    /*    mbedtls_net_free(&server_fd);
+    mbedtls_net_free(&server_fd);
     mbedtls_x509_crt_free(&cacert);
     mbedtls_ssl_free(&ssl);
     mbedtls_ssl_config_free(&conf);
     mbedtls_ctr_drbg_free(&ctr_drbg);
-    mbedtls_entropy_free(&entropy);*/
+    mbedtls_entropy_free(&entropy);
 }
