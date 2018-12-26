@@ -1,6 +1,8 @@
 HYPERION
 ========
 
+**This is a fork merging [zlokomatics fantasic work](https://github.com/zlokomatic/hyperion) with the latest changes!**
+
 Hyperion is an opensource 'AmbiLight' implementation supported by many devices. The main features of Hyperion are:
 * Low CPU load. For a led string of 50 leds the CPU usage will typically be below 1.5% on a non-overclocked Pi.
 * Json interface which allows easy integration into scripts.
