@@ -142,21 +142,21 @@ public:
 
 	///
 	/// Sends the given led-color values via put request to the hue system
-	///
-	/// @param ledValues The color-value per led
-	///
-	/// @return Zero on success else negative
-	///
-	virtual int write(const std::vector<ColorRgb> & ledValues);
+    ///
+    /// @param ledValues The color-value per led
+    ///
+    /// @return Zero on success else negative
+    ///
+    virtual int write(const std::vector<ColorRgb> & ledValues);
 
-	/// Restores the original state of the leds.
-	virtual int switchOff();
+    /// Restores the original state of the leds.
+    virtual int switchOff();
 
-private slots:
+protected slots:
 	/// Restores the status of all lights.
 	void restoreStates();
 
-private:
+protected:
 	/// Array to save the lamps.
 	std::vector<PhilipsHueLight> lights;
 	/// Ip address of the bridge

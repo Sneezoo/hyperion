@@ -49,6 +49,10 @@
 	#include "LedDeviceWS281x.h"
 #endif
 
+#ifdef ENABLE_HUEENTERTAINMENT
+    #include "LedDevicePhilipsHueEntertainment.h"
+#endif
+
 LedDevice * LedDeviceFactory::construct(const Json::Value & deviceConfig)
 {
 	std::cout << "LEDDEVICE INFO: configuration: " << deviceConfig << std::endl;
@@ -269,6 +273,17 @@ LedDevice * LedDeviceFactory::construct(const Json::Value & deviceConfig)
 		}
 		device = new LedDevicePhilipsHue(output, username, switchOffOnBlack, transitiontime, lightIds);
 	}
+#ifdef ENABLE_HUEENTERTAINMENT
+	else if (type == "philipshueentertainment")
+	{
+		const std::string output = deviceConfig["output"].asString();
+		const std::string username = deviceConfig["username"].asString();
+		const std::string clientkey = deviceConfig["clientkey"].asString();
+		const unsigned int groupId = deviceConfig["groupId"].asInt();
+
+		device = new LedDevicePhilipsHueEntertainment(output, username, clientkey, groupId);
+	}
+#endif
 	else if (type == "atmoorb")
 	{
 		const std::string output = deviceConfig["output"].asString();

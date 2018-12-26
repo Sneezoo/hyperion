@@ -129,6 +129,19 @@ if(ENABLE_TINKERFORGE)
 	)
 endif()
 
+if(ENABLE_HUEENTERTAINMENT)
+	find_package(MbedTLS REQUIRED)
+
+	SET(Leddevice_QT_HEADERS
+			${Leddevice_QT_HEADERS}
+			${CURRENT_SOURCE_DIR}/LedDevicePhilipsHueEntertainment.h
+			)
+	SET(Leddevice_SOURCES
+			${Leddevice_SOURCES}
+			${CURRENT_SOURCE_DIR}/LedDevicePhilipsHueEntertainment.cpp
+			)
+endif()
+
 if(ENABLE_QT5)
 	QT5_WRAP_CPP(Leddevice_HEADERS_MOC ${Leddevice_QT_HEADERS})
 else()
@@ -167,4 +180,8 @@ if(APPLE)
 	target_link_libraries(leddevice hidapi-mac)
 else()
 	target_link_libraries(leddevice hidapi-libusb)
+endif()
+
+if(ENABLE_HUEENTERTAINMENT)
+	target_link_libraries(leddevice ${MBEDTLS_LIBRARIES})
 endif()
